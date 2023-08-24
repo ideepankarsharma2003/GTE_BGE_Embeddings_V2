@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import Response, JSONResponse
 from starlette.responses import RedirectResponse
-from main import generate_base_embeddings, generate_large_embeddings, str_2_list_of_str
+from main import generate_base_embeddings, generate_large_embeddings, str_2_list_of_str, generate_bge_large_embeddings
 import json
 
 
@@ -71,6 +71,50 @@ async def large(text:dict):
         text= text.get("text")
         
         embeddings= generate_large_embeddings(text)
+        # embeddings= embeddings.reshape(1, -1)
+        
+        print(f"n_urls: {len(text)}")
+        print(f"embeddings: {embeddings.shape}")
+
+        # return (embeddings[0][0].item())
+        return JSONResponse({
+            "embeddings": embeddings.tolist()
+        }, media_type='application/json')
+    except Exception as e:
+        return Response(f'Error occured: {e}')
+
+
+
+@app.post('/large')
+async def large(text:dict):
+    
+    try: 
+        # text= str_2_list_of_str(text)
+        text= text.get("text")
+        
+        embeddings= generate_large_embeddings(text)
+        # embeddings= embeddings.reshape(1, -1)
+        
+        print(f"n_urls: {len(text)}")
+        print(f"embeddings: {embeddings.shape}")
+
+        # return (embeddings[0][0].item())
+        return JSONResponse({
+            "embeddings": embeddings.tolist()
+        }, media_type='application/json')
+    except Exception as e:
+        return Response(f'Error occured: {e}')
+
+
+
+@app.post('/bgelarge')
+async def large(text:dict):
+    
+    try: 
+        # text= str_2_list_of_str(text)
+        text= text.get("text")
+        
+        embeddings= generate_bge_large_embeddings(text)
         # embeddings= embeddings.reshape(1, -1)
         
         print(f"n_urls: {len(text)}")
