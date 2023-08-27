@@ -34,7 +34,7 @@ This project aims to provide an efficient and user-friendly interface for genera
 3. Install the required dependencies using the following command:
 
    ```bash
-   pip install -r requirements.txt
+   pip install transformers sentence-transformers
    ```
 
 ### Running the Application
@@ -51,10 +51,10 @@ This project aims to provide an efficient and user-friendly interface for genera
 
 The application provides the following endpoints for embedding generation:
 
-- `/base`: Generate embeddings using the GTE base model.
-- `/large`: Generate embeddings using the GTE large model.
-- `/bgelarge`: Generate embeddings using the BGE large model.
-- `/e5_large_v2`: Generate embeddings using the e5_large_v2 model.
+- `/base`: Generate embeddings using the GTE base model.  [768 dimension]
+- `/large`: Generate embeddings using the GTE large model. [1024 dimension]
+- `/bgelarge`: Generate embeddings using the BGE large model. [1024 dimension]
+- `/e5_large_v2`: Generate embeddings using the e5_large_v2 model. [1024 dimension]
 
 ## Usage
 
