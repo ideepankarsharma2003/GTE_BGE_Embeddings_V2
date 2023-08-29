@@ -193,4 +193,5 @@ def generate_intent(keyword):
     score= cos_similarity[int(np.argmax(cos_similarity))]
     # print(f'dominant_intent= {dominant_intent}')
     # print(cos_similarity, '\n\n')
+    print(keyword+':\n', cos_similarity, end='\n\n')
     return dominant_intent, float(score), cos_similarity
