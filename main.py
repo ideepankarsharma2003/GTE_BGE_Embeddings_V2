@@ -5,7 +5,13 @@ import requests
 import json
 import spacy
 import string
+from Utils.intent_embeddings import (
+    intents,
+    intent_embeddings,
+    reverse_intent
+)
 
+import numpy as np
 from summa import summarizer
 import time
 
@@ -13,9 +19,9 @@ import time
 model_base = SentenceTransformer('thenlper/gte-base', device='cuda')
 model_large = SentenceTransformer('thenlper/gte-large', device='cuda')
 model_bge_large = SentenceTransformer('BAAI/bge-large-en', device='cuda')
-model_e5_large_v2 = SentenceTransformer('efederici/e5-large-v2-4096', {"trust_remote_code": True})
+# model_e5_large_v2 = SentenceTransformer('efederici/e5-large-v2-4096', {"trust_remote_code": True})
 
-model_e5_large_v2.max_seq_length= 4096
+# model_e5_large_v2.max_seq_length= 4096
 
 
 def str_2_list_of_str(s):
@@ -50,6 +56,8 @@ def generate_base_embeddings(text):
 
 
 
+
+'''
 def generate_e5_large_v2_embeddings(text): 
     """
     Generate embeddings for the given text using e5_large_v2.
@@ -64,7 +72,7 @@ def generate_e5_large_v2_embeddings(text):
     # return util.cos_sim(embeddings[0], embeddings[1])
     return embeddings.cpu().numpy()
 
-
+'''
 
 
 
@@ -171,3 +179,18 @@ def spacy_tokenizer(sentence):
     sentence = " ".join(mytokens)
     # return preprocessed list of tokens
     return sentence
+
+
+
+
+
+def generate_intent(keyword):
+    s_i= generate_keyword_summary(keyword)
+    e_i= generate_base_embeddings(s_i)
+
+    cos_similarity= generate_cosine_similarity(intent_embeddings, e_i)
+    dominant_intent= reverse_intent[int(np.argmax(cos_similarity))]
+    score= cos_similarity[int(np.argmax(cos_similarity))]
+    # print(f'dominant_intent= {dominant_intent}')
+    # print(cos_similarity, '\n\n')
+    return dominant_intent, float(score), cos_similarity

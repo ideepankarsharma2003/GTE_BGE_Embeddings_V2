@@ -10,7 +10,8 @@ from main import (
     generate_large_embeddings, 
     str_2_list_of_str, 
     generate_bge_large_embeddings,
-    generate_e5_large_v2_embeddings
+    # generate_e5_large_v2_embeddings,
+    generate_intent    
     )
 import json
 
@@ -132,29 +133,49 @@ async def large(text:dict):
         }, media_type='application/json')
     except Exception as e:
         return Response(f'Error occured: {e}')
-        return Response(f'Error occured: {e}')
+        # return Response(f'Error occured: {e}')
 
 
-
-@app.post('/e5_large_v2')
-async def model_e5_large_v2(text:dict):
+@app.get('/intent')
+async def large(text):
     
     try: 
         # text= str_2_list_of_str(text)
-        text= text.get("text")
+        # text= text.get("text")
         
-        embeddings= generate_e5_large_v2_embeddings(text)
+        intent, score, similarity= generate_intent(text)
         # embeddings= embeddings.reshape(1, -1)
         
-        print(f"n_urls: {len(text)}")
-        print(f"embeddings: {embeddings.shape}")
+        # print(f"n_urls: {len(text)}")
+        # print(f"embeddings: {embeddings.shape}")
 
         # return (embeddings[0][0].item())
-        return JSONResponse({
-            "embeddings": embeddings.tolist()
-        }, media_type='application/json')
+        return intent, score
     except Exception as e:
         return Response(f'Error occured: {e}')
+        # return Response(f'Error occured: {e}')
+
+
+
+# @app.post('/e5_large_v2')
+# async def model_e5_large_v2(text:dict):
+    
+#     try: 
+#         # text= str_2_list_of_str(text)
+#         text= text.get("text")
+        
+#         embeddings= generate_e5_large_v2_embeddings(text)
+#         # embeddings= embeddings.reshape(1, -1)
+        
+#         print(f"n_urls: {len(text)}")
+#         print(f"embeddings: {embeddings.shape}")
+
+#         # return (embeddings[0][0].item())
+#         return JSONResponse({
+#             "embeddings": embeddings.tolist()
+#         }, media_type='application/json')
+#     except Exception as e:
+#         return Response(f'Error occured: {e}')
 
 
 
