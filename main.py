@@ -10,6 +10,7 @@ from Utils.intent_embeddings import (
     intent_embeddings,
     reverse_intent
 )
+from Utils.client import generate_seo_metatitle
 
 import numpy as np
 from summa import summarizer
@@ -17,8 +18,10 @@ import time
 
 
 model_base = SentenceTransformer('thenlper/gte-base', device='cuda')
-model_large = SentenceTransformer('thenlper/gte-large', device='cuda')
-model_bge_large = SentenceTransformer('BAAI/bge-large-en', device='cuda')
+model_bge_large= model_base
+model_large= model_base
+# model_large = SentenceTransformer('thenlper/gte-large', device='cuda')
+# model_bge_large = SentenceTransformer('BAAI/bge-large-en', device='cuda')
 # model_e5_large_v2 = SentenceTransformer('efederici/e5-large-v2-4096', {"trust_remote_code": True})
 
 # model_e5_large_v2.max_seq_length= 4096
@@ -153,6 +156,60 @@ def generate_keyword_summary(keyword):
     # summary= spacy_tokenizer(s)
     
     return summary 
+   
+   
+
+
+def generate_keyword_summary_for_intent(keyword):
+    """Generate a summary of the keyword"""
+    response= requests.api.get(f'https://2qq35q1je7.execute-api.us-east-1.amazonaws.com/?search={keyword}')
+    d= json.loads(response.text)
+    
+    data= d['data']
+    results= data['results']
+    
+    s= ""
+    
+
+    for i in results[:5]:
+        s+=i['url']+' '
+        s+=i['description']
+        
+    s= s.replace("https://", '')
+    s= s.replace("/", '')
+    s= s.replace(",", '')
+    s= s.replace("www.", '')
+        
+    summary=summarizer.summarize(s, words=200).replace('\n', ' ')
+    # summary= spacy_tokenizer(s)
+    
+    return summary 
+
+
+def generate_keyword_summary_for_intent_v2(keyword):
+    """Generate a summary of the keyword"""
+    response= requests.api.get(f'https://7t4h0oe8be.execute-api.us-east-1.amazonaws.com/?search={keyword}')
+    d= json.loads(response.text)
+    
+    data= d['items']
+    results= data['results']
+    
+    s= ""
+    
+
+    for i in results[:5]:
+        s+=i['url']+' '
+        s+=i['text']
+        
+    s= s.replace("https://", '')
+    s= s.replace("/", '')
+    s= s.replace(",", '')
+    s= s.replace("www.", '')
+        
+    summary=summarizer.summarize(s, words=200).replace('\n', ' ')
+    # summary= spacy_tokenizer(s)
+    
+    return summary 
     
 
 
@@ -185,7 +242,21 @@ def spacy_tokenizer(sentence):
 
 
 def generate_intent(keyword):
-    s_i= generate_keyword_summary(keyword)
+    s_i= generate_keyword_summary_for_intent(keyword)
+    e_i= generate_base_embeddings(s_i)
+
+    cos_similarity= generate_cosine_similarity(intent_embeddings, e_i)
+    dominant_intent= reverse_intent[int(np.argmax(cos_similarity))]
+    score= cos_similarity[int(np.argmax(cos_similarity))]
+    # print(f'dominant_intent= {dominant_intent}')
+    # print(cos_similarity, '\n\n')
+    print(keyword+':\n', cos_similarity, end='\n\n')
+    return dominant_intent, float(score), cos_similarity
+
+
+
+def generate_intent_v2(keyword):
+    s_i= generate_seo_metatitle(keyword)
     e_i= generate_base_embeddings(s_i)
 
     cos_similarity= generate_cosine_similarity(intent_embeddings, e_i)
